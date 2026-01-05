@@ -7,6 +7,7 @@ pydantic==2.5.0
 pydantic-settings==2.1.0
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
+bcrypt==3.2.2
 python-multipart==0.0.6
 python-dateutil==2.8.2
 email-validator>=2.1.0
@@ -18,7 +19,7 @@ httpx==0.25.2
 # fastapi-mail==1.4.1
 
 # SMS Notifications (optional - depends on provider)
-# Kenya SMS Providers (uncomment the one you use):
+# Kenya SMS Providers (uncomment)-> one you use):
 # africastalking==1.2.1  # Africa's Talking SMS (most popular in Kenya)
 # Alternatively, use your preferred SMS provider
 
