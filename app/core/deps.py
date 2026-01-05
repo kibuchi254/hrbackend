@@ -23,7 +23,11 @@ async def get_current_user(
     )
 
     # Log authentication attempt
-    logger.info(f"Authentication attempt - Token: {token[:20]...{token[-10:] if len(token) > 30 else token}")
+    if len(token) > 30:
+        token_preview = token[:20] + "..." + token[-10:]
+    else:
+        token_preview = token
+    logger.info(f"Authentication attempt - Token: {token_preview}")
 
     # Decode token
     payload = decode_access_token(token)
