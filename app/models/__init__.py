@@ -1,120 +1,68 @@
-from app.models.models import (
-    # Core Models
-    SuperAdmin,
-    Company,
-    Employee,
-    Department,
-    Position,
-    Salary,
-    Attendance,
-    Leave,
-    PayrollCycle,
-    PayrollItem,
+# ========== Core Models ==========
+from app.models.models import SuperAdmin, Company, Employee
+from app.models.models import Department, Position
+from app.models.models import Salary, Attendance, Leave
+from app.models.models import PayrollCycle, PayrollItem
 
-    # Recruitment Models
-    JobPosting,
-    Candidate,
-    JobApplication,
-    Interview,
+# ========== Recruitment Models ==========
+from app.models.models import JobPosting, Candidate
+from app.models.models import JobApplication, Interview
 
-    # AI Models
-    AIPromptHistory,
-    AIModelConfig,
+# ========== AI Models ==========
+from app.models.models import AIPromptHistory, AIModelConfig
 
-    # Notification Models
-    NotificationTemplate,
-    NotificationPreference,
-    Notification,
+# ========== Notification Models ==========
+from app.models.models import NotificationTemplate, NotificationPreference, Notification
 
-    # Document Models
-    Document,
-    Contract,
+# ========== Document Models ==========
+from app.models.models import Document, Contract
 
-    # Compliance Models
-    ComplianceRule,
-    PayeDeduction,
-    NhifDeduction,
-    NssfContribution,
-    HousingLevy,
-    HelbDeduction,
-    TaxRate,
-    StatutoryReport,
+# ========== Compliance Models ==========
+from app.models.models import ComplianceRule, PayeDeduction
+from app.models.models import NhifDeduction, NssfContribution, HousingLevy
+from app.models.models import HelbDeduction, TaxRate, StatutoryReport
 
-    # Time Models
-    Shift,
-    EmployeeShift,
-    OvertimeRule,
-    OvertimeRequest,
-    Holiday,
-    AttendanceRule,
+# ========== Time Models ==========
+from app.models.models import Shift, EmployeeShift, OvertimeRule
+from app.models.models import OvertimeRequest, Holiday, AttendanceRule
 
-    # Performance Models
-    KPI,
-    OKR,
-    PerformanceAppraisal,
-    PerformanceFeedback,
-    PerformanceGoal,
+# ========== Performance Models ==========
+from app.models.models import KPI, OKR, PerformanceAppraisal
+from app.models.models import PerformanceFeedback, PerformanceGoal
 
-    # Analytics Models
-    AnalyticsMetric,
-    WorkforceAnalytics,
-    PayrollAnalytics,
-    HiringFunnel,
-    CostTrend,
+# ========== Analytics Models ==========
+from app.models.models import AnalyticsMetric, WorkforceAnalytics
+from app.models.models import PayrollAnalytics, HiringFunnel, CostTrend
 
-    # Payment Models
-    BankAdapter,
-    CredentialVault,
-    PaymentBatch,
-    Payment,
-    MPesaTransaction,
+# ========== Payment Models ==========
+from app.models.models import BankAdapter, CredentialVault
+from app.models.models import PaymentBatch, Payment, MPesaTransaction
 
-    # Billing Models
-    Plan,
-    CompanySubscription,
-    Invoice,
-    UsageRecord,
+# ========== Billing Models ==========
+from app.models.models import Plan, CompanySubscription, Invoice, UsageRecord
 
-    # Permission Models
-    Permission,
-    RolePermission,
-    CustomRole,
+# ========== Permission Models ==========
+from app.models.models import Permission, RolePermission, CustomRole
 
-    # Audit Models
-    AuditLog,
+# ========== Audit Models ==========
+from app.models.models import AuditLog
 
-    # Webhook Models
-    Webhook,
-    WebhookDelivery,
-    ExternalIntegration,
+# ========== Webhook Models ==========
+from app.models.models import Webhook, WebhookDelivery, ExternalIntegration
 
-    # Background Job Models
-    BackgroundJob,
-    JobLog,
+# ========== Background Job Models ==========
+from app.models.models import BackgroundJob, JobLog
 
-    # Enums
-    UserRole,
-    UserStatus,
-    LeaveStatus,
-    PayrollStatus,
-    AttendanceStatus,
-    ApplicationStatus,
-    CandidateStatus,
-    InterviewStatus,
-    InterviewType,
-    NotificationChannel,
-    NotificationType,
-    NotificationStatus,
-    DocumentCategory,
-    DocumentStatus,
-    PayeStatus,
-    ShiftType,
-    PerformancePeriodStatus,
-    PaymentProvider,
-    PaymentStatus,
-    SubscriptionPlan,
-    FeatureCode,
-    AuditAction,
-    WebhookEvent,
-    BackgroundJobStatus,
-)
+# ========== Enums ==========
+from app.models.models import UserRole, UserStatus
+from app.models.models import LeaveStatus, PayrollStatus, AttendanceStatus
+from app.models.models import ApplicationStatus, CandidateStatus
+from app.models.models import InterviewStatus, InterviewType
+from app.models.models import NotificationChannel, NotificationType, NotificationStatus
+from app.models.models import DocumentCategory, DocumentStatus
+from app.models.models import PayeStatus
+from app.models.models import ShiftType
+from app.models.models import PerformancePeriodStatus
+from app.models.models import PaymentProvider, PaymentStatus
+from app.models.models import SubscriptionPlan, FeatureCode
+from app.models.models import AuditAction, WebhookEvent, BackgroundJobStatus

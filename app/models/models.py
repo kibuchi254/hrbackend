@@ -547,7 +547,7 @@ class Notification(Base):
     message = Column(Text, nullable=False)
     channel = Column(Enum(NotificationChannel), default=NotificationChannel.IN_APP)
     status = Column(Enum(NotificationStatus), default=NotificationStatus.PENDING)
-    metadata = Column(Text)  # JSON data for email/SMS variables
+    extra_data = Column(Text)  # JSON data for email/SMS variables
     read_at = Column(DateTime(timezone=True))
     sent_at = Column(DateTime(timezone=True))
     delivered_at = Column(DateTime(timezone=True))
@@ -1052,7 +1052,7 @@ class AnalyticsMetric(Base):
     period_start = Column(Date, nullable=False)
     period_end = Column(Date, nullable=False)
     dimensions = Column(Text)  # JSON: breakdowns by department, role, etc.
-    metadata = Column(Text)  # JSON: additional context
+    extra_data = Column(Text)  # JSON: additional context
     calculated_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # Relationships
@@ -1496,7 +1496,7 @@ class AuditLog(Base):
     new_values = Column(Text)  # JSON: new state
     ip_address = Column(String)
     user_agent = Column(String)
-    metadata = Column(Text)  # JSON: additional context
+    extra_data = Column(Text)  # JSON: additional context
     timestamp = Column(DateTime(timezone=True), server_default=func.now(), index=True)
 
     # Relationships
