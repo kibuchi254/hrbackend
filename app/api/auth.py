@@ -1,4 +1,4 @@
-# app/api/v1/auth.py
+# app/api/auth.py
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from datetime import timedelta
@@ -20,7 +20,7 @@ router = APIRouter()
 
 # ========== JSON Login Request Schema ==========
 class LoginRequest(BaseModel):
-    """JSON login request body"""
+    """JSON login request body - NOT form-data"""
     username: EmailStr
     password: str
 
@@ -151,12 +151,11 @@ async def get_current_user_info(current_user: dict = Depends(get_current_user)):
     Authorization: Bearer <access_token>
     """
     try:
-        logger.info(f"Getting current user info - Data structure: {current_user.keys()}")
+        logger.info(f"Getting current user info")
         
         # Extract user object and role from dependency
         user = current_user.get("user")
         role = current_user.get("role")
-        company_id = current_user.get("company_id")
         
         # Validate user exists
         if user is None:
@@ -207,7 +206,6 @@ async def get_current_user_info(current_user: dict = Depends(get_current_user)):
         raise
     except AttributeError as e:
         logger.error(f"AttributeError in /me endpoint: {str(e)}")
-        logger.error(f"User object type: {type(user)}, User object: {user}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"User object structure error: {str(e)}"
@@ -222,12 +220,9 @@ async def get_current_user_info(current_user: dict = Depends(get_current_user)):
 
 @router.post("/logout")
 async def logout(current_user: dict = Depends(get_current_user)):
-    """
-    Logout endpoint (token invalidation on client side)
-    Just verify token is valid and return success
-    """
+    """Logout endpoint"""
     logger.info(f"User logout: {current_user.get('user').email}")
-    return {"message": "Successfully logged out. Please discard the access token."}
+    return {"message": "Successfully logged out"}
 
 
 @router.get("/health")
