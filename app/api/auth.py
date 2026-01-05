@@ -2,15 +2,18 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from datetime import timedelta
+from typing import Optional
+import logging
 from app.core.database import get_db
 from app.core.security import create_access_token
 from app.core.config import settings
 from app.crud.crud_super_admin import authenticate_super_admin, create_super_admin
 from app.crud.crud_employee import authenticate_employee
 from app.schemas.schemas import SuperAdminCreate, SuperAdminLogin, Token, EmployeeResponse, SuperAdminResponse
-
-# Import get_current_user to avoid circular dependency
 from app.core.deps import get_current_user
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -81,27 +84,62 @@ async def login_employee(
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@router.get("/me", response_model=dict)
+@router.get("/me")
 async def get_current_user_info(current_user: dict = Depends(get_current_user)):
     """Get current user information"""
-    user = current_user["user"]
-    role = current_user["role"]
-
-    if role == "super_admin":
-        return {
-            "id": user.id,
-            "email": user.email,
-            "full_name": user.full_name,
-            "role": role,
-            "is_active": user.is_active
-        }
-    else:
-        return {
-            "id": user.id,
-            "email": user.email,
-            "full_name": user.full_name,
-            "role": role,
-            "company_id": user.company_id,
-            "employee_id": user.employee_id,
-            "status": user.status
-        }
+    try:
+        user = current_user.get("user")
+        role = current_user.get("role")
+        company_id = current_user.get("company_id")
+        
+        # Debug logging
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info(f"Current user info - User ID: {user.id if user else 'None'}, Role: {role}, Company ID: {company_id}")
+        
+        if user is None:
+            logger.error("User is None in current_user")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="User not found",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        
+        if role is None:
+            logger.error("Role is None in current_user")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Role not found",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        
+        if role == "super_admin":
+            return {
+                "id": user.id,
+                "email": user.email,
+                "full_name": user.full_name,
+                "role": role,
+                "is_active": user.is_active,
+                "company_id": None,
+                "employee_id": None,
+                "status": user.is_active
+            }
+        else:
+            return {
+                "id": user.id,
+                "email": user.email,
+                "full_name": user.full_name,
+                "role": role,
+                "company_id": user.company_id,
+                "employee_id": user.employee_id,
+                "status": user.status
+            }
+            
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Error in /me endpoint: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Internal server error: {str(e)}"
+        )
