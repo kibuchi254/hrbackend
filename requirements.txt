@@ -1,0 +1,36 @@
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+sqlalchemy==2.0.23
+alembic==1.12.1
+pydantic==2.5.0
+pydantic-settings==2.1.0
+python-jose[cryptography]==3.3.0
+passlib==1.7.4
+bcrypt==4.0.1
+python-multipart==0.0.6
+python-dateutil==2.8.2
+email-validator>=2.1.0
+httpx==0.25.2
+# Enterprise Dependencies
+# Email
+fastapi-mail==1.4.1
+email-validator>=2.1.0
+# SMS (optional - depends on provider)
+africast==1.2.1
+# Encryption
+cryptography>=41.0.0
+pycryptodome==3.19.0
+# Background Jobs
+celery==5.3.6
+redis==5.0.1
+# Advanced Analytics
+pandas==2.1.4
+openpyxl==3.1.2
+# Reporting
+reportlab==4.0.9
+# Payment Providers
+mpesa-sdk==0.4.1
+# Rate Limiting
+slowapi==0.1.9
+# Audit Logging
+python-json-logger==2.0.7
