@@ -608,7 +608,7 @@ class Document(Base):
 
     # Relationships
     company = relationship("Company", backref="documents")
-    employee = relationship("Employee", backref="documents")
+    employee = relationship("Employee", backref="documents", foreign_keys=[employee_id])
 
 
 class Contract(Base):
@@ -639,7 +639,7 @@ class Contract(Base):
 
     # Relationships
     company = relationship("Company", backref="contracts")
-    employee = relationship("Employee", backref="contracts")
+    employee = relationship("Employee", backref="contracts", foreign_keys=[employee_id])
 
 
 # ========== Kenya Statutory Compliance Module ==========
@@ -872,7 +872,7 @@ class OvertimeRequest(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # Relationships
-    employee = relationship("Employee", backref="overtime_requests")
+    employee = relationship("Employee", backref="overtime_requests", foreign_keys=[employee_id])
 
 
 class Holiday(Base):
