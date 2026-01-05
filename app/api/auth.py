@@ -6,7 +6,7 @@ import logging
 from pydantic import BaseModel, EmailStr
 
 from app.core.database import get_db
-from app.core.security import create_access_token, hash_password, verify_password
+from app.core.security import create_access_token, get_password_hash, verify_password
 from app.core.config import settings
 from app.crud.crud_super_admin import authenticate_super_admin, create_super_admin, get_super_admin
 from app.crud.crud_employee import authenticate_employee, get_employee
