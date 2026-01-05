@@ -5,13 +5,13 @@ from app.core.database import engine
 from app.models import models
 
 # Import routers directly from their modules (avoid circular imports)
-from app.api.v1 import auth
-from app.api.v1 import admin
-from app.api.v1 import company
-from app.api.v1 import hr
-from app.api.v1 import payroll
-from app.api.v1 import recruitment
-from app.api.v1 import ai
+from app.api import auth
+from app.api import admin
+from app.api import company
+from app.api import hr
+from app.api import payroll
+from app.api import recruitment
+from app.api import ai
 
 # Create database tables
 models.Base.metadata.create_all(bind=engine)
