@@ -1,21 +1,25 @@
+# app/core/deps.py
 import logging
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
-from typing import Optional
 from app.core.database import get_db
 from app.core.security import decode_access_token
 
-# Configure logging
 logger = logging.getLogger(__name__)
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/auth/login")
+# Fixed token URL to match your auth routes
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/auth/super-admin/login")
 
 
 async def get_current_user(
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db)
 ):
+    """
+    Dependency to get current authenticated user
+    Returns: {"user": user_object, "role": role_string, "company_id": company_id_or_none}
+    """
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -41,50 +45,59 @@ async def get_current_user(
     company_id = payload.get("company_id")
     email = payload.get("email")
 
-    # Log payload extraction
-    logger.info(f"Payload extracted - User ID: {user_id}, Role: {role}, Company ID: {company_id}, Email: {email}")
+    logger.info(f"Token decoded - User ID: {user_id}, Role: {role}, Company ID: {company_id}, Email: {email}")
 
+    # Validate required fields
     if user_id is None or role is None:
-        logger.error(f"Missing required fields - User ID: {user_id}, Role: {role}")
+        logger.error(f"Missing required token fields - User ID: {user_id}, Role: {role}")
         raise credentials_exception
 
     # Lazy import to avoid circular dependency
-    from app.crud.crud_super_admin import get_super_admin as get_super_admin_crud
-    from app.crud.crud_employee import get_employee as get_employee_crud
-
-    # Look up user in database
-    logger.info(f"Looking up user in database - Role: {role}, User ID: {user_id}")
+    from app.crud.crud_super_admin import get_super_admin
+    from app.crud.crud_employee import get_employee
 
     try:
+        # Look up user in database based on role
+        logger.info(f"Looking up user - Role: {role}, User ID: {user_id}")
+
         if role == "super_admin":
-            from app.models.models import SuperAdmin
-            user = get_super_admin_crud(db, user_id)
+            user = get_super_admin(db, user_id)
+            if user is None:
+                logger.error(f"Super admin not found - User ID: {user_id}")
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Super admin not found",
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
         elif role in ["company_admin", "hr_manager", "payroll_manager", "recruitment_manager", "employee"]:
-            user = get_employee_crud(db, user_id)
+            user = get_employee(db, user_id)
+            if user is None:
+                logger.error(f"Employee not found - User ID: {user_id}")
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Employee not found",
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
         else:
-            logger.error(f"Invalid role: {role}")
+            logger.error(f"Invalid role in token: {role}")
             raise credentials_exception
 
-        if user is None:
-            logger.error(f"User not found in database - User ID: {user_id}, Role: {role}")
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="User not found in database",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
+        logger.info(f"User found successfully - ID: {user.id}, Email: {user.email}, Role: {role}")
 
-        logger.info(f"User found successfully - User ID: {user.id}, Role: {role}, Email: {user.email}")
-
-        return {"user": user, "role": role, "company_id": company_id}
+        # Return user dictionary for use in routes
+        return {
+            "user": user,
+            "role": role,
+            "company_id": company_id
+        }
 
     except HTTPException:
-        # Re-raise HTTP exceptions
         raise
     except Exception as e:
-        logger.error(f"Error in get_current_user: {str(e)}")
+        logger.error(f"Error in get_current_user: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Internal server error: {str(e)}",
+            detail="Internal server error during authentication",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
@@ -92,9 +105,12 @@ async def get_current_user(
 async def get_current_super_admin(
     current_user: dict = Depends(get_current_user)
 ):
+    """
+    Dependency to ensure current user is a super admin
+    """
     role = current_user.get("role")
     if role != "super_admin":
-        logger.error(f"Unauthorized access attempt - Role: {role}")
+        logger.error(f"Unauthorized access attempt - Required: super_admin, Got: {role}")
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only super admins can access this resource"
@@ -105,9 +121,14 @@ async def get_current_super_admin(
 async def get_current_company_admin(
     current_user: dict = Depends(get_current_user)
 ):
+    """
+    Dependency to ensure current user is a company admin or manager
+    """
     role = current_user.get("role")
-    if role not in ["company_admin", "hr_manager", "payroll_manager", "recruitment_manager"]:
-        logger.error(f"Unauthorized company admin access attempt - Role: {role}")
+    allowed_roles = ["company_admin", "hr_manager", "payroll_manager", "recruitment_manager"]
+    
+    if role not in allowed_roles:
+        logger.error(f"Unauthorized company admin access - Required: {allowed_roles}, Got: {role}")
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only company admins can access this resource"
@@ -118,9 +139,12 @@ async def get_current_company_admin(
 async def get_current_employee(
     current_user: dict = Depends(get_current_user)
 ):
+    """
+    Dependency to ensure current user is an employee
+    """
     role = current_user.get("role")
     if role != "employee":
-        logger.error(f"Unauthorized employee access attempt - Role: {role}")
+        logger.error(f"Unauthorized employee access - Required: employee, Got: {role}")
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only employees can access this resource"
@@ -132,18 +156,21 @@ async def verify_company_access(
     current_user: dict = Depends(get_current_user),
     company_id: int = None
 ):
-    """Verify that current user has access to the specified company"""
+    """
+    Verify that current user has access to the specified company
+    Super admins have access to all companies
+    """
     role = current_user.get("role")
-    current_company_id = current_user.get("company_id")
+    user_company_id = current_user.get("company_id")
     
-    logger.info(f"Company access verification - Role: {role}, User Company ID: {current_company_id}, Requested Company ID: {company_id}")
+    logger.info(f"Company access verification - Role: {role}, User Company: {user_company_id}, Requested: {company_id}")
     
     if role == "super_admin":
-        logger.info("Super admin access granted (no company restriction)")
+        logger.info("Super admin - access granted to all companies")
         return current_user
 
-    if current_company_id != company_id:
-        logger.error(f"Company access denied - User Company ID: {current_company_id}, Requested Company ID: {company_id}")
+    if user_company_id != company_id:
+        logger.error(f"Company access denied - User Company: {user_company_id}, Requested: {company_id}")
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You do not have access to this company's data"
