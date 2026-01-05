@@ -1,4 +1,4 @@
-# ========== Core Dependencies ==========
+# ========== Core Dependencies (Required) ==========
 fastapi==0.104.1
 uvicorn[standard]==0.24.0
 sqlalchemy==2.0.23
@@ -14,18 +14,17 @@ httpx==0.25.2
 
 # ========== Enterprise Dependencies (All Optional) ==========
 
-# Email Notifications (optional - comment out if not using email)
-fastapi-mail==1.4.1
-email-validator>=2.1.0
+# Email Notifications (optional - comment out if not using)
+# fastapi-mail==1.4.1
 
 # SMS Notifications (optional - depends on provider)
 # Kenya SMS Providers (uncomment the one you use):
 # africastalking==1.2.1  # Africa's Talking SMS (most popular in Kenya)
 # Alternatively, use your preferred SMS provider
 
-# Encryption (required for secure credential vaults)
-cryptography>=41.0.0
-pycryptodome==3.19.0
+# Encryption (optional - required for secure credential vaults)
+# cryptography>=41.0.0
+# pycryptodomex==3.19.0
 
 # Background Jobs (optional - required if using Celery, comment out if using simple background tasks)
 # celery==5.3.6
@@ -39,8 +38,8 @@ pycryptodome==3.19.0
 # reportlab==4.0.9
 
 # Payment Providers (optional - depends on which payment method you use)
-# For M-Pesa B2C:
-mpesa-sdk==0.4.1
+# For M-Pesa B2C - Available versions: 1.0.0, 1.0.1, 1.0.4, 1.0.5, 1.0.6, 1.0.7
+mpesa-sdk==1.0.7
 
 # Rate Limiting (recommended for production)
 slowapi==0.1.9
